@@ -1,5 +1,7 @@
 const Joi = require("joi");
 const _ = require("lodash");
+const fs = require("fs");
+const path = require("path");
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const config = require("../../config");
@@ -105,6 +107,10 @@ async function uploadAvatar(ctx, next) {
   const filename = ctx.req.file.filename;
   const User = mongoose.model("User");
   const data = await User.findByIdAndUpdate(id, { $set: { avatar: filename } });
+  // 删除旧图片
+  if (data.avatar !== "default-avatar.jpg") {
+    fs.unlinkSync(path.resolve(__dirname, `../../static/image/${data.avatar}`));
+  }
   ctx.state.data = filename;
 }
 
